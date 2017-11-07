@@ -38,7 +38,7 @@ export default class App extends Component<{}> {
 
     constructor(props){
       super(props)
-     
+
       this.state={
           initialPosition:{
               latitude:47.5,
@@ -63,34 +63,34 @@ export default class App extends Component<{}> {
   }
 
     watchID: ?number =null
-    
+
     getLocation(){
-                  
+
       this.watchID= navigator.geolocation.watchPosition((position)=>{
         var lat=parseFloat(position.coords.latitude)
         var lon=parseFloat(position.coords.longitude)
-  
+
         glat=lat
         glon=lon
-  
+
         var lastRegion ={
           latitude: lat,
           longitude: lon,
           longitudeDelta: LON_D,
           latitudeDelta: LAT_D
-  
+
         }
         alert(JSON.stringify(lastRegion))
         this.setState({initialPosition:lastRegion})
         this.setState({ownPosition:lastRegion})
       },(error)=>alert(error),{enableHighAccuracy:true,timeout:20000,maximumAge:10000})
-      
-    }  
+
+    }
 
     componentDidMount(){
-      
-        //  this.getLocation()   
-      
+
+        //  this.getLocation()
+
           /////////////////////////////
           //FusedLocation.off(this.subscription);
           // FusedLocation.off(this.errSubscription);
@@ -98,22 +98,22 @@ export default class App extends Component<{}> {
           this.watchID= navigator.geolocation.watchPosition((position)=>{
             var lat=parseFloat(position.coords.latitude)
             var lon=parseFloat(position.coords.longitude)
-      
+
             glat=lat
             glon=lon
-      
+
             var lastRegion ={
               latitude: lat,
               longitude: lon,
               longitudeDelta: LON_D,
               latitudeDelta: LAT_D
-      
+
             }
             alert(JSON.stringify(lastRegion))
             this.setState({initialPosition:lastRegion})
             this.setState({ownPosition:lastRegion})
           },(error)=>alert(error),{enableHighAccuracy:true,timeout:20,maximumAge:10})
-          
+
     }
 
     componentWillUnount(){
@@ -126,23 +126,23 @@ export default class App extends Component<{}> {
     }
 
     getSpots(){
-            
+
           fetch('http://'+localhost+':8000/api/park/', {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
             }
-            
-          }).then((res) => {return res.json()           
-          }).then((json) => {         
+
+          }).then((res) => {return res.json()
+          }).then((json) => {
 
             this.setState({markers:json})
-           
+
           }).catch((error) => {
             alert("Error:"+error);
           })
-          
+
     }
     sendPos(){
       alert("Lat: "+glat+"\nLon: "+glon)
@@ -152,8 +152,8 @@ export default class App extends Component<{}> {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
             },
-  
-            
+
+
             body: JSON.stringify({
               lat: glat,
               lon: glon,
@@ -162,45 +162,44 @@ export default class App extends Component<{}> {
           }).catch((error) => {
             alert(error.message);
           });
-          
+
     }
-      
+
     onPress3(){
       console.log("asd")
 
       this.getLocation()
-      
+        this.asd()
+
 
     }
 
 
   render() {
     return (
-      
-      
+
+
             <View style={styles.container}>
                 <MapView
-                  style={styles.map}
-                  region={this.state.initialPosition}>
-
-                  <MapView.Marker
-                      coordinate={this.state.ownPosition}>
-
-                           <View style={styles.marker}>
-                          </View>
-
-                  </MapView.Marker>
-
+                    style={styles.map}
+                    region={this.state.initialPosition}
+                    rotateEnabled={false}
+                    showsMyLocationButton={true}
+                    loadingEnabled={true}
+                    showsUserLocation={true}
+                    >
+                >
                   {this.state.markers.map(marker => (
                     <MapView.Marker
-                      coordinate={marker}
-                      key={marker.key}
+                        style={styles.marker}
+                        coordinate={marker}
+                        key={marker.key}
+
                     />
                   ))}
-
-
-
                 </MapView>
+
+
                 <View style={{
                 flex: 1,
                 flexDirection: 'column',
@@ -249,8 +248,8 @@ const styles = StyleSheet.create({
   },
   
   marker:{
-    height:20,
-    width:20,
+    height:10,
+    width:10,
     borderRadius:5,
     overflow:'hidden',
     alignItems: 'center',
