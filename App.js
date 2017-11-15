@@ -13,7 +13,8 @@ import {
     AppRegistry,  
     Dimensions,
     PermissionsAndroid,
-    Button
+    Button,
+    Linking 
 } from 'react-native';
 import MapView from 'react-native-maps'
 
@@ -23,8 +24,8 @@ var glat=0
 var glon=0
 
 
-const localhost ="192.168.2.134"
-//const localhost ="192.168.43.60"
+//const localhost ="192.168.2.134"
+const localhost ="192.168.43.60"
 //const localhost="10.0.2.2"
 
 const instructions = Platform.select({
@@ -59,6 +60,8 @@ export default class App extends Component<{}> {
         this.getLocation = this.getLocation.bind(this);
         this.clearMarkers = this.clearMarkers.bind(this);  
         this.mapOnPress = this.mapOnPress.bind(this);        
+        this.onMarkerPress = this.onMarkerPress.bind(this);        
+        
         
     }
 
@@ -191,6 +194,19 @@ export default class App extends Component<{}> {
 
     }   
 
+    onMarkerPress(i){
+        //alert(JSON.stringify(this.state.markers[i]))
+
+        url="google.navigation:q="+this.state.markers[i].latitude+","+this.state.markers[i].longitude
+
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+              Linking.openURL(url);
+            } else {
+             alert('Don\'t know how to open URI: ' + url);
+            }
+          });
+        }
     render() {
         return (
 
@@ -203,13 +219,17 @@ export default class App extends Component<{}> {
                 loadingEnabled={true}
                 onRegionChange={(region)=> this.setState({ initialPosition:region })}
                 onLongPress={this.mapOnPress}
-                showsUserLocation={true}>
+                showsUserLocation={true}
+                >
 
-                    {this.state.markers.map(marker => (
+                    {this.state.markers.map((marker,i) => (
                     <MapView.Marker
                         style={styles.marker}
                         coordinate={marker}
-                        key={marker.key}/>
+                        key={marker.key}
+                        rotation={45}
+                        onPress={(e) => {e.stopPropagation(); this.onMarkerPress(i)}}
+                        />
                     ))}
                 </MapView>
 
