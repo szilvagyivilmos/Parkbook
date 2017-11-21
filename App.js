@@ -24,8 +24,8 @@ var glat=0
 var glon=0
 
 
-//const localhost ="192.168.2.134"
-const localhost ="192.168.43.60"
+const localhost ="192.168.2.141"
+//const localhost ="192.168.43.60"
 //const localhost="10.0.2.2"
 
 const instructions = Platform.select({
@@ -51,16 +51,28 @@ export default class App extends Component<{}> {
                 latitude:47.5,
                 longitude:19
             },
-            markers:[]
+            markers:[],
+            destinationMarker:{
+                coordinate:{
+                    latitude:0,
+                    longitude:0
+                },
+                shown:false
+            }
         }
 
-        this.getSpots = this.getSpots.bind(this);
+      
         this.sendPos = this.sendPos.bind(this);
         this.reload = this.reload.bind(this);
         this.getLocation = this.getLocation.bind(this);
         this.clearMarkers = this.clearMarkers.bind(this);  
         this.mapOnPress = this.mapOnPress.bind(this);        
-        this.onMarkerPress = this.onMarkerPress.bind(this);        
+        this.onMarkerPress = this.onMarkerPress.bind(this);     
+        this.getSpots = this.getSpots.bind(this);     
+        this.getAllSpots = this.getAllSpots.bind(this); 
+        this.getNearestSpots = this.getNearestSpots.bind(this);       
+        
+        
         
         
     }
@@ -126,9 +138,10 @@ export default class App extends Component<{}> {
     clearMarkers(){
         asd=[]
         this.setState({markers:asd})
+        this.setState({destinationMarker:{shown:false}})
     }
 
-    getSpots(){
+    getAllSpots(){
 
         fetch('http://'+localhost+':8000/api/park/', {
             method: 'GET',
@@ -144,6 +157,38 @@ export default class App extends Component<{}> {
         })
 
     }
+
+    getSpots(latitude,longitude,acc,lim){
+
+        fetch('http://'+localhost+':8000/api/parkinrange/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }, 
+            body: JSON.stringify({
+                lat: latitude,
+                lon: longitude,
+                accuracy:acc,
+                limit:lim                             
+            })
+        })
+        .then((res) => {return res.json()})
+        .then((json) => {
+            this.setState({markers:json})           
+        }).catch((error) => {
+            alert("Error:"+error);
+        })
+    }
+
+    getNearestSpots(){
+        
+        this.getSpots(this.state.ownPosition.latitude,this.state.ownPosition.longitude,10,1)
+
+    }
+
+
+
     sendPos(){
         alert("Lat: "+glat+"\nLon: "+glon)
         fetch('http://'+localhost+':8000/api/addpark/', {
@@ -171,42 +216,28 @@ export default class App extends Component<{}> {
     }
 
     mapOnPress(e){
-        
-        fetch('http://'+localhost+':8000/api/parkinrange/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            }, 
-            body: JSON.stringify({
-                lon: e.nativeEvent.coordinate.longitude,
-                lat: e.nativeEvent.coordinate.latitude,
-                accuracy:0.1                             
-            })
-        })
-        .then((res) => {return res.json()})
-        .then((json) => {
-            this.setState({markers:json})
-            alert(this.state.markers)
-        }).catch((error) => {
-            alert("Error:"+error);
-        })
+
+        this.getSpots(e.nativeEvent.coordinate.latitude , e.nativeEvent.coordinate.longitude,0.1,200)
+
+        dest={coordinate:e.nativeEvent.coordinate,
+              shown:true
+        }
+        this.setState({destinationMarker:dest})
 
     }   
 
     onMarkerPress(i){
-        //alert(JSON.stringify(this.state.markers[i]))
-
+        
         url="google.navigation:q="+this.state.markers[i].latitude+","+this.state.markers[i].longitude
 
         Linking.canOpenURL(url).then(supported => {
             if (supported) {
               Linking.openURL(url);
-            } else {
-             alert('Don\'t know how to open URI: ' + url);
-            }
-          });
-        }
+            } else { alert('Don\'t know how to open URI: ' + url);}
+        });
+
+        
+    }
     render() {
         return (
 
@@ -227,10 +258,13 @@ export default class App extends Component<{}> {
                         style={styles.marker}
                         coordinate={marker}
                         key={marker.key}
-                        rotation={45}
+                        
                         onPress={(e) => {e.stopPropagation(); this.onMarkerPress(i)}}
                         />
                     ))}
+
+
+                   {(this.state.destinationMarker.shown)? <MapView.Marker  pinColor="#2088FF" coordinate={this.state.destinationMarker.coordinate} /> :null}
                 </MapView>
 
 
@@ -243,7 +277,7 @@ export default class App extends Component<{}> {
 
                 <Button
                 style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                onPress={this.getSpots}
+                onPress={this.getAllSpots}
                 title="Get Markers"
                 />
                 <Button
@@ -262,6 +296,11 @@ export default class App extends Component<{}> {
                   onPress={this.reload}
                   title="Reload"
                 />
+                <Button
+                style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
+                  onPress={this.getNearestSpots}
+                  title="Nearest spot"
+                />
 
                 </View>
             </View>
@@ -275,11 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  button:{
-    height:20,
-    width:50
-  },
+  },  
   
   marker:{
     height:10,
