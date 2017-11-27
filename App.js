@@ -17,6 +17,9 @@ import {
     Linking 
 } from 'react-native';
 import MapView from 'react-native-maps'
+import ActionButton from 'react-native-action-button'
+import Icon from 'react-native-vector-icons/Ionicons'
+import RNGooglePlaces from 'react-native-google-places';
 
 const LAT_D = 0.0922
 const LON_D = LAT_D*0.56 
@@ -24,9 +27,12 @@ var glat=0
 var glon=0
 
 
-const localhost ="192.168.2.141"
-//const localhost ="192.168.43.60"
+//const localhost ="192.168.2.141"
+const localhost ="192.168.2.100"
 //const localhost="10.0.2.2"
+
+
+const BLUE="#2196f3"
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' +
@@ -43,7 +49,7 @@ export default class App extends Component<{}> {
         this.state={
             initialPosition:{
                 latitude:47.5,
-                longitude:19,
+                longitude:19.001,
                 latitudeDelta:LAT_D,
                 longitudeDelta:LON_D
             },
@@ -271,38 +277,46 @@ export default class App extends Component<{}> {
                 <View style={{
                 flex: 1,
                 flexDirection: 'column',
-                height:50
+                height:50,
+                justifyContent:"flex-end",
+                paddingBottom:50
 
                 }}>
 
-                <Button
-                style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                onPress={this.getAllSpots}
-                title="Get Markers"
-                />
-                <Button
-                 style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                 onPress={this.clearMarkers}
-                 title="Clear Markers"
-                />
-
-                <Button
-                style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                  onPress={this.sendPos}
-                  title="setPos"
-                />
+              
+                
+               
                 <Button
                 style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
                   onPress={this.reload}
                   title="Reload"
                 />
-                <Button
-                style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                  onPress={this.getNearestSpots}
-                  title="Nearest spot"
-                />
 
                 </View>
+
+                    <ActionButton
+                        buttonColor= {BLUE}                        
+                        buttonText="P"
+                        outRangeScale={2}
+                        onLongPress={this.sendPos}
+                        degrees={-25}
+                    >
+
+                        <ActionButton.Item buttonColor='#39a1f4' title="Nearest spot" onPress={this.getNearestSpots}>
+                                    <Icon name="android-notifications-none"  />
+                        </ActionButton.Item>
+
+                        <ActionButton.Item buttonColor='#39a1f4' title="Clear Markers" onPress={this.clearMarkers}>
+                                    <Icon name="md-done-all"  />
+                        </ActionButton.Item>
+
+                        <ActionButton.Item buttonColor='#39a1f4' title="Get Markers" onPress={this.getAllSpots}>
+                                <Icon name="android-create" />
+                        </ActionButton.Item>
+                
+                
+                    </ActionButton>
+               
             </View>
           );
   }
