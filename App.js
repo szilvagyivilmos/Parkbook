@@ -21,6 +21,8 @@ import MapView from 'react-native-maps'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import RNGooglePlaces from 'react-native-google-places';
+import Map from './components/Map.js'
+import SearchBar from 'react-native-searchbar'
 
 const LAT_D = 0.0922
 const LON_D = LAT_D*0.56 
@@ -28,7 +30,29 @@ var glat=0
 var glon=0
 var window 
 
-
+items = [
+    1337,
+    'janeway',
+    {
+      lots: 'of',
+      different: {
+        types: 0,
+        data: false,
+        that: {
+          can: {
+            be: {
+              quite: {
+                complex: {
+                  hidden: [ 'gold!' ],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    [ 4, 2, 'tree' ],
+  ];
 //const localhost ="192.168.2.141"
 const localhost ="192.168.2.108"
 //const localhost="10.0.2.2"
@@ -66,7 +90,9 @@ export default class App extends Component<{}> {
                     longitude:0
                 },
                 shown:false
-            }
+            },
+            items,
+            results: []
 
         }
         
@@ -82,7 +108,8 @@ export default class App extends Component<{}> {
         this.onMarkerPress = this.onMarkerPress.bind(this);     
         this.getSpots = this.getSpots.bind(this);     
         this.getAllSpots = this.getAllSpots.bind(this); 
-        this.getNearestSpots = this.getNearestSpots.bind(this);       
+        this.getNearestSpots = this.getNearestSpots.bind(this);      
+        this._handleResults = this._handleResults.bind(this); 
         
         
         
@@ -239,6 +266,22 @@ export default class App extends Component<{}> {
     }   
 
     onMarkerPress(i){
+
+        var key=this.state.markers[i].key
+
+        alert(key)
+
+        fetch('http://'+localhost+':8000/api/delspot/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               id:key})
+        }).catch((error) => {
+            alert(error.message);
+        });
         
         url="google.navigation:q="+this.state.markers[i].latitude+","+this.state.markers[i].longitude
 
@@ -248,8 +291,23 @@ export default class App extends Component<{}> {
             } else { alert('Don\'t know how to open URI: ' + url);}
         });
 
+     
+        
         
     }
+
+
+
+
+    
+      
+      
+      _handleResults(results) {
+        this.setState({ results });
+      }
+
+
+
     render() {
         return (
 
@@ -264,20 +322,26 @@ export default class App extends Component<{}> {
                 onLongPress={this.mapOnPress}
                 showsUserLocation={true}
                 >
-
                     {this.state.markers.map((marker,i) => (
                     <MapView.Marker
                         style={styles.marker}
                         coordinate={marker}
                         key={marker.key}
-                        
+                        pinColor="#2088FF"
                         onPress={(e) => {e.stopPropagation(); this.onMarkerPress(i)}}
                         />
                     ))}
 
 
-                   {(this.state.destinationMarker.shown)? <MapView.Marker  pinColor="#2088FF" coordinate={this.state.destinationMarker.coordinate} /> :null}
+                   {(this.state.destinationMarker.shown)? <MapView.Marker   coordinate={this.state.destinationMarker.coordinate} /> :null}
                 </MapView>
+
+                <SearchBar
+                ref={(ref) => this.searchBar = ref}
+                data={items}
+                handleResults={this._handleResults}
+                showOnLoad
+                />
 
 
                 <View style={{
@@ -304,24 +368,20 @@ export default class App extends Component<{}> {
                     degrees={-25}
                     >
 
-                    <ActionButton.Item buttonColor='#39a1f4' title="Nearest spot" onPress={this.getNearestSpots}>
-                            <Text   style={styles.bubbleMenuText}>N</Text>
-                    </ActionButton.Item>
+                        <ActionButton.Item buttonColor='#39a1f4' title="Nearest spot" onPress={this.getNearestSpots}>
+                                <Text   style={styles.bubbleMenuText}>N</Text>
+                        </ActionButton.Item>
 
-                    <ActionButton.Item buttonColor='#39a1f4' title="Clear Markers" onPress={this.clearMarkers}>
-                        <Text    style={styles.bubbleMenuText}>C</Text>
-                    </ActionButton.Item>
+                        <ActionButton.Item buttonColor='#39a1f4' title="Clear Markers" onPress={this.clearMarkers}>
+                            <Text    style={styles.bubbleMenuText}>C</Text>
+                        </ActionButton.Item>
 
-                    <ActionButton.Item buttonColor='#39a1f4' title="Get Markers" onPress={this.getAllSpots}>
-                        <Text   style={styles.bubbleMenuText}>G</Text>
-                    </ActionButton.Item>
-
+                        <ActionButton.Item buttonColor='#39a1f4' title="Get Markers" onPress={this.getAllSpots}>
+                            <Text   style={styles.bubbleMenuText}>G</Text>
+                        </ActionButton.Item>
 
                     </ActionButton>
 
-                
-               
-              
                 
             </View>
           );
@@ -360,7 +420,7 @@ const styles = StyleSheet.create({
 
 
 /*
-<TouchableHighlight onPress={(e) => {e.stopPropagation();this.sendPos()}} style={{borderRadius: (window.width)/4,position: "absolute", bottom: -(window.width)/4, right: -(window.width*0.8)/4,}}>
+                <TouchableHighlight onPress={(e) => {e.stopPropagation();this.sendPos()}} style={{borderRadius: (window.width)/4,position: "absolute", bottom: -(window.width)/4, right: -(window.width*0.8)/4,}}>
                     <View style={{
                         
                         backgroundColor: BLUE,
@@ -380,7 +440,7 @@ const styles = StyleSheet.create({
                     }} 
                      />
                 </TouchableHighlight>
- <ActionButton
+                <ActionButton
                         buttonColor= {BLUE}                        
                         buttonText="P"
                         outRangeScale={2}

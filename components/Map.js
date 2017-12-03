@@ -1,3 +1,15 @@
+import React, { Component } from 'react';
+import Icon from 'react-native-vector-icons/Ionicons'
+import MapView from 'react-native-maps'
+import {
+    Platform,
+    StyleSheet,
+    Text,
+    View,      
+    Dimensions,
+    PermissionsAndroid,
+} from 'react-native'
+
 class Map extends Component {
     
     constructor(props) {
@@ -111,7 +123,11 @@ class Map extends Component {
     
     const styles = StyleSheet.create({
     map: {
-        ...StyleSheet.absoluteFillObject,
+        left:0,
+        right:0,
+        top:0,
+        bottom:0,
+        position:'absolute'
      }
     });
     
