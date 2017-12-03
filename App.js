@@ -14,7 +14,8 @@ import {
     Dimensions,
     PermissionsAndroid,
     Button,
-    Linking 
+    Linking,
+    TouchableHighlight
 } from 'react-native';
 import MapView from 'react-native-maps'
 import ActionButton from 'react-native-action-button'
@@ -25,10 +26,11 @@ const LAT_D = 0.0922
 const LON_D = LAT_D*0.56 
 var glat=0
 var glon=0
+var window 
 
 
 //const localhost ="192.168.2.141"
-const localhost ="192.168.2.100"
+const localhost ="192.168.2.108"
 //const localhost="10.0.2.2"
 
 
@@ -65,8 +67,12 @@ export default class App extends Component<{}> {
                 },
                 shown:false
             }
-        }
 
+        }
+        
+        window = Dimensions.get('screen');
+
+        
       
         this.sendPos = this.sendPos.bind(this);
         this.reload = this.reload.bind(this);
@@ -281,20 +287,100 @@ export default class App extends Component<{}> {
                 justifyContent:"flex-end",
                 paddingBottom:50
 
-                }}>
-
+                }}>                
+               
+                    <Button style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
+                    onPress={this.reload}
+                    title="Reload"
+                    />
+                    </View>
+                                  
               
+                    <ActionButton
+                    buttonColor= {BLUE}                        
+                    buttonText="P"
+                    outRangeScale={2}
+                    onLongPress={this.sendPos}
+                    degrees={-25}
+                    >
+
+                    <ActionButton.Item buttonColor='#39a1f4' title="Nearest spot" onPress={this.getNearestSpots}>
+                            <Text   style={styles.bubbleMenuText}>N</Text>
+                    </ActionButton.Item>
+
+                    <ActionButton.Item buttonColor='#39a1f4' title="Clear Markers" onPress={this.clearMarkers}>
+                        <Text    style={styles.bubbleMenuText}>C</Text>
+                    </ActionButton.Item>
+
+                    <ActionButton.Item buttonColor='#39a1f4' title="Get Markers" onPress={this.getAllSpots}>
+                        <Text   style={styles.bubbleMenuText}>G</Text>
+                    </ActionButton.Item>
+
+
+                    </ActionButton>
+
                 
                
-                <Button
-                style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
-                  onPress={this.reload}
-                  title="Reload"
-                />
+              
+                
+            </View>
+          );
+  }
+}
 
-                </View>
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    },  
 
-                    <ActionButton
+    marker:{
+        height:10,
+        width:10,
+        borderRadius:5,
+        overflow:'hidden',
+        alignItems: 'center',
+        backgroundColor:'rgba(100,122,255,0.8)'
+    },
+
+    map:{
+        left:0,
+        right:0,
+        top:0,
+        bottom:0,
+        position:'absolute'
+    },
+    bubbleMenuText:{
+        color: 'white',
+        fontSize:30.0
+    }
+});
+
+
+/*
+<TouchableHighlight onPress={(e) => {e.stopPropagation();this.sendPos()}} style={{borderRadius: (window.width)/4,position: "absolute", bottom: -(window.width)/4, right: -(window.width*0.8)/4,}}>
+                    <View style={{
+                        
+                        backgroundColor: BLUE,
+                        width: (window.width)/2, 
+                        height: (window.width)/2, 
+                        borderRadius: (window.width)/4,                   
+                    }} 
+                     />
+                </TouchableHighlight>
+                <TouchableHighlight onPress={(e) => {e.stopPropagation();this.clearMarkers()}} style={{borderRadius: (window.width)/4, position: "absolute", bottom: -(window.width)/4, left: -(window.width*0.8)/4, }}>
+                    <View style={{
+                        
+                        backgroundColor: BLUE,
+                        width: (window.width)/2, 
+                        height: (window.width)/2, 
+                        borderRadius: (window.width)/4,                   
+                    }} 
+                     />
+                </TouchableHighlight>
+ <ActionButton
                         buttonColor= {BLUE}                        
                         buttonText="P"
                         outRangeScale={2}
@@ -316,34 +402,5 @@ export default class App extends Component<{}> {
                 
                 
                     </ActionButton>
-               
-            </View>
-          );
-  }
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },  
-  
-  marker:{
-    height:10,
-    width:10,
-    borderRadius:5,
-    overflow:'hidden',
-    alignItems: 'center',
-    backgroundColor:'rgba(100,122,255,0.8)'
-
-  },
-  map:{
-      left:0,
-      right:0,
-      top:0,
-      bottom:0,
-      position:'absolute'
-  },
-});
+*/
