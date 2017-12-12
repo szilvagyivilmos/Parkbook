@@ -30,31 +30,8 @@ var glat=0
 var glon=0
 var window 
 
-items = [
-    1337,
-    'janeway',
-    {
-      lots: 'of',
-      different: {
-        types: 0,
-        data: false,
-        that: {
-          can: {
-            be: {
-              quite: {
-                complex: {
-                  hidden: [ 'gold!' ],
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    [ 4, 2, 'tree' ],
-  ];
-//const localhost ="192.168.2.141"
-const localhost ="192.168.2.108"
+const localhost ="192.168.2.146"
+//const localhost ="192.168.2.108"
 //const localhost="10.0.2.2"
 
 
@@ -90,9 +67,8 @@ export default class App extends Component<{}> {
                     longitude:0
                 },
                 shown:false
-            },
-            items,
-            results: []
+            }
+          
 
         }
         
@@ -109,8 +85,7 @@ export default class App extends Component<{}> {
         this.getSpots = this.getSpots.bind(this);     
         this.getAllSpots = this.getAllSpots.bind(this); 
         this.getNearestSpots = this.getNearestSpots.bind(this);      
-        this._handleResults = this._handleResults.bind(this); 
-        
+       
         
         
         
@@ -269,9 +244,9 @@ export default class App extends Component<{}> {
 
         var key=this.state.markers[i].key
 
-        alert(key)
+       
 
-        fetch('http://'+localhost+':8000/api/delspot/', {
+        fetch('http://'+localhost+':8000/api/delpark/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -301,10 +276,6 @@ export default class App extends Component<{}> {
 
     
       
-      
-      _handleResults(results) {
-        this.setState({ results });
-      }
 
 
 
@@ -336,12 +307,7 @@ export default class App extends Component<{}> {
                    {(this.state.destinationMarker.shown)? <MapView.Marker   coordinate={this.state.destinationMarker.coordinate} /> :null}
                 </MapView>
 
-                <SearchBar
-                ref={(ref) => this.searchBar = ref}
-                data={items}
-                handleResults={this._handleResults}
-                showOnLoad
-                />
+                
 
 
                 <View style={{
@@ -353,10 +319,11 @@ export default class App extends Component<{}> {
 
                 }}>                
                
-                    <Button style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
+                    {/* <Button style={{width: 50, height: 50, backgroundColor: 'powderblue'}}
                     onPress={this.reload}
                     title="Reload"
-                    />
+                    /> */}
+
                     </View>
                                   
               
